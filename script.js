@@ -1,3 +1,10 @@
+// HTML escape function to prevent XSS
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
 // Service data
 const services = [
     {
@@ -281,6 +288,16 @@ let currentFilter = 'all';
 
 // Initialize
 function init() {
+    // Preprocess searchable text for better performance
+    services.forEach(service => {
+        service.searchableText = `
+            ${service.name}
+            ${service.description}
+            ${service.features.join(' ')}
+            ${service.pricing}
+        `.toLowerCase();
+    });
+    
     renderServices(services);
     setupEventListeners();
 }
@@ -307,21 +324,21 @@ function createServiceCard(service) {
     card.dataset.category = service.category;
     
     const featuresHTML = service.features
-        .map(feature => `<li>${feature}</li>`)
+        .map(feature => `<li>${escapeHtml(feature)}</li>`)
         .join('');
     
     card.innerHTML = `
         <div class="service-header">
             <span class="service-icon">${service.icon}</span>
-            <h3 class="service-name">${service.name}</h3>
+            <h3 class="service-name">${escapeHtml(service.name)}</h3>
         </div>
-        <span class="service-category">${getCategoryLabel(service.category)}</span>
-        <p class="service-description">${service.description}</p>
+        <span class="service-category">${escapeHtml(getCategoryLabel(service.category))}</span>
+        <p class="service-description">${escapeHtml(service.description)}</p>
         <ul class="service-features">
             ${featuresHTML}
         </ul>
-        <div class="service-pricing">${service.pricing}</div>
-        <a href="${service.url}" target="_blank" rel="noopener noreferrer" class="service-link">Visit Website</a>
+        <div class="service-pricing">${escapeHtml(service.pricing)}</div>
+        <a href="${escapeHtml(service.url)}" target="_blank" rel="noopener noreferrer" class="service-link">Visit Website</a>
     `;
     
     return card;
@@ -345,8 +362,12 @@ function setupEventListeners() {
     // Filter buttons
     filterButtons.forEach(button => {
         button.addEventListener('click', () => {
-            filterButtons.forEach(btn => btn.classList.remove('active'));
+            filterButtons.forEach(btn => {
+                btn.classList.remove('active');
+                btn.setAttribute('aria-pressed', 'false');
+            });
             button.classList.add('active');
+            button.setAttribute('aria-pressed', 'true');
             currentFilter = button.dataset.filter;
             applyFilters();
         });
@@ -371,14 +392,7 @@ function applyFilters(searchTerm = '') {
     // Apply search filter
     if (searchTerm) {
         filtered = filtered.filter(service => {
-            const searchableText = `
-                ${service.name}
-                ${service.description}
-                ${service.features.join(' ')}
-                ${service.pricing}
-            `.toLowerCase();
-            
-            return searchableText.includes(searchTerm);
+            return service.searchableText.includes(searchTerm);
         });
     }
     

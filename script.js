@@ -329,7 +329,7 @@ function createServiceCard(service) {
     
     card.innerHTML = `
         <div class="service-header">
-            <span class="service-icon">${service.icon}</span>
+            <span class="service-icon">${escapeHtml(service.icon)}</span>
             <h3 class="service-name">${escapeHtml(service.name)}</h3>
         </div>
         <span class="service-category">${escapeHtml(getCategoryLabel(service.category))}</span>

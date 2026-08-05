@@ -1,8 +1,17 @@
 // HTML escape function to prevent XSS
+const escapeMap = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;'
+};
+
 function escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
+    if (!text) return '';
+    return String(text).replace(/[&<>"']/g, function(match) {
+        return escapeMap[match];
+    });
 }
 
 // Service data

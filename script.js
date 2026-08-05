@@ -5,6 +5,22 @@ function escapeHtml(text) {
     return div.innerHTML;
 }
 
+// URL sanitize function to prevent javascript: URI XSS
+function sanitizeUrl(url) {
+    try {
+        const parsed = new URL(url, window.location.origin);
+        if (parsed.protocol === 'http:' || parsed.protocol === 'https:') {
+            return url;
+        }
+    } catch (e) {
+        // If URL parsing fails, fallback to simple string check
+        if (url && (url.startsWith('http://') || url.startsWith('https://'))) {
+            return url;
+        }
+    }
+    return '#';
+}
+
 // Service data
 const services = [
     {
@@ -338,7 +354,7 @@ function createServiceCard(service) {
             ${featuresHTML}
         </ul>
         <div class="service-pricing">${escapeHtml(service.pricing)}</div>
-        <a href="${escapeHtml(service.url)}" target="_blank" rel="noopener noreferrer" class="service-link">Visit Website</a>
+        <a href="${escapeHtml(sanitizeUrl(service.url))}" target="_blank" rel="noopener noreferrer" class="service-link">Visit Website</a>
     `;
     
     return card;

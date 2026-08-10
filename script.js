@@ -311,10 +311,12 @@ function renderServices(servicesToRender) {
         return;
     }
     
+    const fragment = document.createDocumentFragment();
     servicesToRender.forEach(service => {
         const card = createServiceCard(service);
-        servicesContainer.appendChild(card);
+        fragment.appendChild(card);
     });
+    servicesContainer.appendChild(fragment);
 }
 
 // Create service card

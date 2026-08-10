@@ -401,3 +401,8 @@ function applyFilters(searchTerm = '') {
 
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', init);
+
+// Export for testing
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = { escapeHtml };
+}

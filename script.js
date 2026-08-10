@@ -327,6 +327,16 @@ function createServiceCard(service) {
         .map(feature => `<li>${escapeHtml(feature)}</li>`)
         .join('');
     
+    let safeUrl = '#';
+    try {
+        const parsedUrl = new URL(service.url);
+        if (parsedUrl.protocol === 'http:' || parsedUrl.protocol === 'https:') {
+            safeUrl = parsedUrl.href;
+        }
+    } catch (e) {
+        // Invalid URL, fallback to '#'
+    }
+
     card.innerHTML = `
         <div class="service-header">
             <span class="service-icon">${service.icon}</span>
@@ -338,7 +348,7 @@ function createServiceCard(service) {
             ${featuresHTML}
         </ul>
         <div class="service-pricing">${escapeHtml(service.pricing)}</div>
-        <a href="${escapeHtml(service.url)}" target="_blank" rel="noopener noreferrer" class="service-link">Visit Website</a>
+        <a href="${escapeHtml(safeUrl)}" target="_blank" rel="noopener noreferrer" class="service-link">Visit Website</a>
     `;
     
     return card;

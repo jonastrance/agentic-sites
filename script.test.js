@@ -69,3 +69,28 @@ test('createServiceCard', async (t) => {
         assert.strictEqual(card.querySelector('.service-name').textContent, "<script>alert('XSS Name')</script>");
     });
 });
+
+test('getCategoryLabel', async (t) => {
+    let window, document;
+
+    await t.beforeEach(() => {
+        const dom = new JSDOM("<!DOCTYPE html><html><body><input id='searchInput'/><div id='servicesContainer'></div></body></html>", { runScripts: 'dangerously' });
+        window = dom.window;
+        document = window.document;
+
+        const script = document.createElement('script');
+        script.textContent = scriptContent;
+        document.body.appendChild(script);
+    });
+
+    await t.test('should return correct label for known categories', () => {
+        assert.strictEqual(window.getCategoryLabel('ide'), 'IDE-Based');
+        assert.strictEqual(window.getCategoryLabel('web'), 'Web-Based');
+        assert.strictEqual(window.getCategoryLabel('fullstack'), 'Full-Stack');
+    });
+
+    await t.test('should return the category itself for unknown categories', () => {
+        assert.strictEqual(window.getCategoryLabel('unknown'), 'unknown');
+        assert.strictEqual(window.getCategoryLabel('another-category'), 'another-category');
+    });
+});

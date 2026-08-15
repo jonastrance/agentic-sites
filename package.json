@@ -1,0 +1,11 @@
+{
+  "name": "agentic-sites",
+  "version": "1.0.0",
+  "description": "A comprehensive website listing subscription-based agentic coder services that build applications from prompts.",
+  "scripts": {
+    "test": "node --test"
+  },
+  "devDependencies": {
+    "jsdom": "^24.1.1"
+  }
+}

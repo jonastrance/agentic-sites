@@ -139,10 +139,6 @@ main {
     box-shadow: var(--hover-shadow);
 }
 
-.service-card.hidden {
-    display: none;
-}
-
 .service-header {
     display: flex;
     align-items: center;

@@ -1,4 +1,12 @@
 // HTML escape function to prevent XSS
+const escapeMap = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;'
+};
+
 function escapeHtml(text) {
     if (text === null || text === undefined) return '';
     const escapeMap = {
@@ -9,6 +17,10 @@ function escapeHtml(text) {
         "'": '&#39;'
     };
     return String(text).replace(/[&<>"']/g, match => escapeMap[match]);
+    if (!text) return '';
+    return String(text).replace(/[&<>"']/g, function(match) {
+        return escapeMap[match];
+    });
 }
 
 // Service data
@@ -317,10 +329,12 @@ function renderServices(servicesToRender) {
         return;
     }
     
+    const fragment = document.createDocumentFragment();
     servicesToRender.forEach(service => {
         const card = createServiceCard(service);
-        servicesContainer.appendChild(card);
+        fragment.appendChild(card);
     });
+    servicesContainer.appendChild(fragment);
 }
 
 // Create service card

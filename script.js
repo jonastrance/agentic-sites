@@ -374,10 +374,23 @@ function getCategoryLabel(category) {
     return labels[category] || category;
 }
 
+// Debounce function
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+
 // Setup event listeners
 function setupEventListeners() {
     // Search functionality
-    searchInput.addEventListener('input', handleSearch);
+    searchInput.addEventListener('input', debounce(handleSearch, 300));
     
     // Filter buttons
     filterButtons.forEach(button => {

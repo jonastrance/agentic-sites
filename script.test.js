@@ -6,6 +6,36 @@ const { JSDOM } = require('jsdom');
 
 const scriptContent = fs.readFileSync(path.resolve(__dirname, './script.js'), 'utf8');
 
+test('escapeHtml', async (t) => {
+    let window;
+
+    await t.beforeEach(() => {
+        const dom = new JSDOM("<!DOCTYPE html><html><body><input id='searchInput'/><div id='servicesContainer'></div></body></html>", { runScripts: 'dangerously' });
+        window = dom.window;
+        const document = window.document;
+
+        const script = document.createElement('script');
+        script.textContent = scriptContent;
+        document.body.appendChild(script);
+    });
+
+    await t.test('should escape HTML characters correctly', () => {
+        assert.strictEqual(window.escapeHtml('<div>'), '&lt;div&gt;');
+        assert.strictEqual(window.escapeHtml('"hello" & \'world\''), '&quot;hello&quot; &amp; &#39;world&#39;');
+    });
+
+    await t.test('should return empty string for null and undefined', () => {
+        assert.strictEqual(window.escapeHtml(null), '');
+        assert.strictEqual(window.escapeHtml(undefined), '');
+    });
+
+    await t.test('should handle non-string inputs', () => {
+        assert.strictEqual(window.escapeHtml(123), '123');
+        assert.strictEqual(window.escapeHtml(true), 'true');
+        assert.strictEqual(window.escapeHtml(false), 'false');
+    });
+});
+
 test('createServiceCard', async (t) => {
     let window, document;
 

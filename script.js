@@ -8,6 +8,15 @@ const escapeMap = {
 };
 
 function escapeHtml(text) {
+    if (text === null || text === undefined) return '';
+    const escapeMap = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+    };
+    return String(text).replace(/[&<>"']/g, match => escapeMap[match]);
     if (!text) return '';
     return String(text).replace(/[&<>"']/g, function(match) {
         return escapeMap[match];

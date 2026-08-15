@@ -69,3 +69,27 @@ test('createServiceCard', async (t) => {
         assert.strictEqual(card.querySelector('.service-name').textContent, "<script>alert('XSS Name')</script>");
     });
 });
+
+test('renderServices', async (t) => {
+    let window, document;
+
+    await t.beforeEach(() => {
+        // Use a minimal HTML template with required elements to avoid script.js initialization errors
+        const dom = new JSDOM("<!DOCTYPE html><html><body><input id='searchInput'/><div id='servicesContainer'></div></body></html>", { runScripts: 'dangerously' });
+        window = dom.window;
+        document = window.document;
+
+        const script = document.createElement('script');
+        script.textContent = scriptContent;
+        document.body.appendChild(script);
+    });
+
+    await t.test('should display "No services found" message when services array is empty', () => {
+        const servicesContainer = document.getElementById('servicesContainer');
+        window.renderServices([]);
+        assert.strictEqual(
+            servicesContainer.innerHTML,
+            '<p style="grid-column: 1/-1; text-align: center; color: var(--text-secondary); padding: 2rem;">No services found matching your criteria.</p>'
+        );
+    });
+});

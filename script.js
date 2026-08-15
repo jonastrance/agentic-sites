@@ -297,15 +297,20 @@ const services = [
 ];
 
 // DOM elements
-const searchInput = document.getElementById('searchInput');
-const servicesContainer = document.getElementById('servicesContainer');
-const filterButtons = document.querySelectorAll('.filter-btn');
+let searchInput;
+let servicesContainer;
+let filterButtons;
 
 // Current filter
 let currentFilter = 'all';
 
 // Initialize
 function init() {
+    // Initialize DOM elements here to ensure document is ready
+    searchInput = document.getElementById('searchInput');
+    servicesContainer = document.getElementById('servicesContainer');
+    filterButtons = document.querySelectorAll('.filter-btn');
+
     // Preprocess searchable text for better performance
     services.forEach(service => {
         service.searchableText = `

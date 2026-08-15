@@ -15,6 +15,12 @@ test('createServiceCard', async (t) => {
         window = dom.window;
         document = window.document;
 
+        // Mock fetch to prevent errors when the script evaluates
+        window.fetch = async () => ({
+            ok: true,
+            json: async () => ([])
+        });
+
         const script = document.createElement('script');
         script.textContent = scriptContent;
         document.body.appendChild(script);

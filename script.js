@@ -347,6 +347,20 @@ function createServiceCard(service) {
         .map(feature => `<li>${escapeHtml(feature)}</li>`)
         .join('');
     
+    const getSafeUrl = (url) => {
+        try {
+            const parsedUrl = new URL(url, window.location.origin !== 'null' ? window.location.origin : 'http://localhost');
+            if (parsedUrl.protocol === 'http:' || parsedUrl.protocol === 'https:') {
+                return url;
+            }
+            return '#';
+        } catch (e) {
+            return '#';
+        }
+    };
+
+    const safeUrl = getSafeUrl(service.url);
+
     card.innerHTML = `
         <div class="service-header">
             <span class="service-icon">${service.icon}</span>
@@ -358,7 +372,7 @@ function createServiceCard(service) {
             ${featuresHTML}
         </ul>
         <div class="service-pricing">${escapeHtml(service.pricing)}</div>
-        <a href="${escapeHtml(service.url)}" target="_blank" rel="noopener noreferrer" class="service-link">Visit Website</a>
+        <a href="${escapeHtml(safeUrl)}" target="_blank" rel="noopener noreferrer" class="service-link">Visit Website</a>
     `;
     
     return card;

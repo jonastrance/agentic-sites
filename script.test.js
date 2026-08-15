@@ -67,5 +67,8 @@ test('createServiceCard', async (t) => {
         assert.strictEqual(card.querySelector('.service-features li').innerHTML.includes('<img'), false);
 
         assert.strictEqual(card.querySelector('.service-name').textContent, "<script>alert('XSS Name')</script>");
+
+        const link = card.querySelector('a.service-link');
+        assert.strictEqual(link.href.endsWith('#'), true); // Check if href is replaced with # (JSDOM might resolve it to about:blank# or file://...# depending on baseURI)
     });
 });

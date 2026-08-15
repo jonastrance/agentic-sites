@@ -66,7 +66,7 @@ main {
 
 /* Search section */
 .search-section {
-    background: white;
+    background: var(--card-bg);
     padding: 2rem;
     border-radius: 12px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -97,7 +97,7 @@ main {
 .filter-btn {
     padding: 0.6rem 1.2rem;
     border: 2px solid var(--border-color);
-    background: white;
+    background: var(--card-bg);
     border-radius: 20px;
     cursor: pointer;
     font-size: 0.9rem;
@@ -125,7 +125,7 @@ main {
 }
 
 .service-card {
-    background: white;
+    background: var(--card-bg);
     border-radius: 12px;
     padding: 2rem;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -218,7 +218,7 @@ main {
 
 /* Info section */
 .info-section {
-    background: white;
+    background: var(--card-bg);
     padding: 2rem;
     border-radius: 12px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);

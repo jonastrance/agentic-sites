@@ -69,3 +69,84 @@ test('createServiceCard', async (t) => {
         assert.strictEqual(card.querySelector('.service-name').textContent, "<script>alert('XSS Name')</script>");
     });
 });
+
+test('applyFilters', async (t) => {
+    let window, document;
+
+    t.beforeEach(() => {
+        const dom = new JSDOM(`
+            <!DOCTYPE html>
+            <html>
+            <body>
+                <input id='searchInput'/>
+                <button class='filter-btn' data-filter='all'>All</button>
+                <button class='filter-btn' data-filter='web'>Web</button>
+                <button class='filter-btn' data-filter='ide'>IDE</button>
+                <button class='filter-btn' data-filter='fullstack'>Fullstack</button>
+                <div id='servicesContainer'></div>
+            </body>
+            </html>
+        `, { runScripts: 'dangerously' });
+        window = dom.window;
+        document = window.document;
+
+        const script = document.createElement('script');
+        script.textContent = scriptContent;
+        document.body.appendChild(script);
+
+        // Initialize to setup searchableText and initial render
+        window.init();
+    });
+
+    await t.test('should show all services initially', () => {
+        const container = document.getElementById('servicesContainer');
+        const cards = container.querySelectorAll('.service-card');
+        assert.strictEqual(cards.length, 18);
+    });
+
+    await t.test('should filter by category', () => {
+        document.querySelector('[data-filter="web"]').click();
+
+        const container = document.getElementById('servicesContainer');
+        const cards = container.querySelectorAll('.service-card');
+        assert.strictEqual(cards.length, 4);
+        cards.forEach(card => {
+            assert.strictEqual(card.dataset.category, 'web');
+        });
+    });
+
+    await t.test('should filter by search term', () => {
+        document.querySelector('[data-filter="all"]').click();
+        window.applyFilters('github');
+
+        const container = document.getElementById('servicesContainer');
+        const cards = container.querySelectorAll('.service-card');
+        assert.strictEqual(cards.length, 3);
+        cards.forEach(card => {
+            assert.ok(card.innerHTML.toLowerCase().includes('github') || card.innerHTML.toLowerCase().includes('copilot') || card.dataset.category === 'fullstack' || card.querySelector('.service-name').textContent === 'Smol Developer');
+        });
+    });
+
+    await t.test('should filter by both category and search term', () => {
+        document.querySelector('[data-filter="fullstack"]').click();
+        window.applyFilters('github');
+
+        const container = document.getElementById('servicesContainer');
+        const cards = container.querySelectorAll('.service-card');
+        assert.strictEqual(cards.length, 1);
+        cards.forEach(card => {
+            assert.strictEqual(card.dataset.category, 'fullstack');
+            assert.ok(card.innerHTML.toLowerCase().includes('github'));
+        });
+    });
+
+    await t.test('should show no results message when nothing matches', () => {
+        document.querySelector('[data-filter="all"]').click();
+        window.applyFilters('nonexistentsearchtermthatwillnevermatch');
+
+        const container = document.getElementById('servicesContainer');
+        const cards = container.querySelectorAll('.service-card');
+        assert.strictEqual(cards.length, 0);
+        assert.ok(container.innerHTML.includes('No services found matching your criteria.'));
+    });
+});

@@ -69,3 +69,91 @@ test('createServiceCard', async (t) => {
         assert.strictEqual(card.querySelector('.service-name').textContent, "<script>alert('XSS Name')</script>");
     });
 });
+
+test('applyFilters via DOM events', async (t) => {
+    let window, document;
+
+    await t.beforeEach(() => {
+        const dom = new JSDOM(`<!DOCTYPE html>
+            <html>
+            <body>
+                <input id='searchInput'/>
+                <button class='filter-btn' data-filter='all'>All</button>
+                <button class='filter-btn' data-filter='ide'>IDE</button>
+                <button class='filter-btn' data-filter='web'>Web</button>
+                <div id='servicesContainer'></div>
+            </body>
+            </html>`, { runScripts: 'dangerously' });
+        window = dom.window;
+        document = window.document;
+
+        const script = document.createElement('script');
+        script.textContent = scriptContent;
+        document.body.appendChild(script);
+
+        // Manually trigger initialization if DOMContentLoaded already fired or to ensure it's ready
+        if (window.init) {
+            window.init();
+        }
+    });
+
+    await t.test('initial render shows all services', () => {
+        const cards = document.querySelectorAll('.service-card');
+        assert.ok(cards.length > 0, 'Should render initial services');
+    });
+
+    await t.test('filtering by category "ide" shows fewer services', () => {
+        const initialCount = document.querySelectorAll('.service-card').length;
+
+        const ideBtn = document.querySelector('button[data-filter="ide"]');
+        ideBtn.click();
+
+        const cards = document.querySelectorAll('.service-card');
+        assert.ok(cards.length < initialCount, 'Should show fewer cards after filtering');
+
+        const totalIDE = Array.from(cards).filter(c => c.dataset.category === 'ide').length;
+        assert.strictEqual(cards.length, totalIDE, 'All visible cards should be in the "ide" category');
+    });
+
+    await t.test('searching for a specific term', () => {
+        const searchInput = document.getElementById('searchInput');
+        searchInput.value = 'GitHub Copilot Workspace';
+        searchInput.dispatchEvent(new window.Event('input'));
+
+        const cards = document.querySelectorAll('.service-card');
+        assert.strictEqual(cards.length, 1, 'Should find exactly one matching service');
+        assert.strictEqual(cards[0].querySelector('.service-name').textContent, 'GitHub Copilot Workspace');
+    });
+
+    await t.test('searching with an empty term shows category results', () => {
+        // First filter to IDE
+        const ideBtn = document.querySelector('button[data-filter="ide"]');
+        ideBtn.click();
+
+        const searchInput = document.getElementById('searchInput');
+        // Type a search
+        searchInput.value = 'Cursor';
+        searchInput.dispatchEvent(new window.Event('input'));
+
+        // Clear search
+        searchInput.value = '';
+        searchInput.dispatchEvent(new window.Event('input'));
+
+        const cards = document.querySelectorAll('.service-card');
+        const totalIDE = Array.from(cards).filter(c => c.dataset.category === 'ide').length;
+        assert.ok(cards.length > 1, 'Should show all IDE category results again');
+        assert.strictEqual(cards.length, totalIDE, 'Should only show IDE category results');
+    });
+
+    await t.test('no matches shows empty state', () => {
+        const searchInput = document.getElementById('searchInput');
+        searchInput.value = 'nonexistentxyz123';
+        searchInput.dispatchEvent(new window.Event('input'));
+
+        const cards = document.querySelectorAll('.service-card');
+        assert.strictEqual(cards.length, 0, 'Should not show any cards');
+
+        const container = document.getElementById('servicesContainer');
+        assert.ok(container.innerHTML.includes('No services found matching your criteria.'), 'Should display empty state message');
+    });
+});

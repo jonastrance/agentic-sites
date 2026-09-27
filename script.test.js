@@ -67,5 +67,9 @@ test('createServiceCard', async (t) => {
         assert.strictEqual(card.querySelector('.service-features li').innerHTML.includes('<img'), false);
 
         assert.strictEqual(card.querySelector('.service-name').textContent, "<script>alert('XSS Name')</script>");
+
+        // Assert URL is sanitized
+        const link = card.querySelector('a.service-link');
+        assert.strictEqual(link.getAttribute('href'), '#');
     });
 });

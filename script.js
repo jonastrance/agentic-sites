@@ -23,6 +23,25 @@ function escapeHtml(text) {
     });
 }
 
+// URL sanitizer to prevent javascript: XSS
+function sanitizeUrl(url) {
+    if (!url) return '#';
+    try {
+        const base = (typeof window !== 'undefined' && window.location && window.location.origin !== 'null')
+            ? window.location.origin
+            : 'http://localhost';
+
+        const parsedUrl = new URL(String(url).trim(), base);
+
+        if (['http:', 'https:'].includes(parsedUrl.protocol)) {
+            return url;
+        }
+    } catch (e) {
+        return '#';
+    }
+    return '#';
+}
+
 // Service data
 const services = [
     {
@@ -358,7 +377,7 @@ function createServiceCard(service) {
             ${featuresHTML}
         </ul>
         <div class="service-pricing">${escapeHtml(service.pricing)}</div>
-        <a href="${escapeHtml(service.url)}" target="_blank" rel="noopener noreferrer" class="service-link">Visit Website</a>
+        <a href="${escapeHtml(sanitizeUrl(service.url))}" target="_blank" rel="noopener noreferrer" class="service-link">Visit Website</a>
     `;
     
     return card;

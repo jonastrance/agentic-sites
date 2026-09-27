@@ -17,10 +17,6 @@ function escapeHtml(text) {
         "'": '&#39;'
     };
     return String(text).replace(/[&<>"']/g, match => escapeMap[match]);
-    if (!text) return '';
-    return String(text).replace(/[&<>"']/g, function(match) {
-        return escapeMap[match];
-    });
 }
 
 // Service data

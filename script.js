@@ -377,7 +377,7 @@ function getCategoryLabel(category) {
 // Setup event listeners
 function setupEventListeners() {
     // Search functionality
-    searchInput.addEventListener('input', handleSearch);
+    searchInput.addEventListener('input', debounce(handleSearch, 300));
     
     // Filter buttons
     filterButtons.forEach(button => {
@@ -392,6 +392,17 @@ function setupEventListeners() {
             applyFilters();
         });
     });
+}
+
+// Debounce function
+function debounce(func, delay) {
+    let timeoutId;
+    return function (...args) {
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => {
+            func.apply(this, args);
+        }, delay);
+    };
 }
 
 // Handle search

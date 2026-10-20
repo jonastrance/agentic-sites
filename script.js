@@ -353,14 +353,16 @@ function createServiceCard(service) {
     return card;
 }
 
+// Category labels
+const categoryLabels = {
+    'ide': 'IDE-Based',
+    'web': 'Web-Based',
+    'fullstack': 'Full-Stack'
+};
+
 // Get category label
 function getCategoryLabel(category) {
-    const labels = {
-        'ide': 'IDE-Based',
-        'web': 'Web-Based',
-        'fullstack': 'Full-Stack'
-    };
-    return labels[category] || category;
+    return categoryLabels[category] || category;
 }
 
 // Setup event listeners

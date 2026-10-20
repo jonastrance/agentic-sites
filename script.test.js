@@ -69,3 +69,35 @@ test('createServiceCard', async (t) => {
         assert.strictEqual(card.querySelector('.service-name').textContent, "<script>alert('XSS Name')</script>");
     });
 });
+
+test('getCategoryLabel', async (t) => {
+    let window, document;
+
+    await t.beforeEach(() => {
+        // Use a minimal HTML template with required elements to avoid script.js initialization errors
+        const dom = new JSDOM("<!DOCTYPE html><html><body><input id='searchInput'/><div id='servicesContainer'></div></body></html>", { runScripts: 'dangerously' });
+        window = dom.window;
+        document = window.document;
+
+        const script = document.createElement('script');
+        script.textContent = scriptContent;
+        document.body.appendChild(script);
+    });
+
+    await t.test('should return correct label for known categories', () => {
+        assert.strictEqual(window.getCategoryLabel('ide'), 'IDE-Based');
+        assert.strictEqual(window.getCategoryLabel('web'), 'Web-Based');
+        assert.strictEqual(window.getCategoryLabel('fullstack'), 'Full-Stack');
+    });
+
+    await t.test('should return the original string for unknown categories', () => {
+        assert.strictEqual(window.getCategoryLabel('mobile'), 'mobile');
+        assert.strictEqual(window.getCategoryLabel('desktop'), 'desktop');
+        assert.strictEqual(window.getCategoryLabel(''), '');
+    });
+
+    await t.test('should handle edge cases', () => {
+        assert.strictEqual(window.getCategoryLabel(undefined), undefined);
+        assert.strictEqual(window.getCategoryLabel(null), null);
+    });
+});

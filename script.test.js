@@ -69,3 +69,34 @@ test('createServiceCard', async (t) => {
         assert.strictEqual(card.querySelector('.service-name').textContent, "<script>alert('XSS Name')</script>");
     });
 });
+
+test('getCategoryLabel', async (t) => {
+    let window, document;
+
+    await t.beforeEach(() => {
+        const dom = new JSDOM("<!DOCTYPE html><html><body><input id='searchInput'/><div id='servicesContainer'></div></body></html>", { runScripts: 'dangerously' });
+        window = dom.window;
+        document = window.document;
+
+        const script = document.createElement('script');
+        script.textContent = scriptContent;
+        document.body.appendChild(script);
+    });
+
+    await t.test('should return correct label for known categories', () => {
+        assert.strictEqual(window.getCategoryLabel('ide'), 'IDE-Based');
+        assert.strictEqual(window.getCategoryLabel('web'), 'Web-Based');
+        assert.strictEqual(window.getCategoryLabel('fullstack'), 'Full-Stack');
+    });
+
+    await t.test('should return the input value as fallback for unknown categories', () => {
+        assert.strictEqual(window.getCategoryLabel('unknown'), 'unknown');
+        assert.strictEqual(window.getCategoryLabel('custom-category'), 'custom-category');
+    });
+
+    await t.test('should handle falsy values', () => {
+        assert.strictEqual(window.getCategoryLabel(''), '');
+        assert.strictEqual(window.getCategoryLabel(null), null);
+        assert.strictEqual(window.getCategoryLabel(undefined), undefined);
+    });
+});

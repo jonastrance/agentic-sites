@@ -69,3 +69,32 @@ test('createServiceCard', async (t) => {
         assert.strictEqual(card.querySelector('.service-name').textContent, "<script>alert('XSS Name')</script>");
     });
 });
+
+test('escapeHtml', async (t) => {
+    let window, document;
+
+    await t.beforeEach(() => {
+        const dom = new JSDOM("<!DOCTYPE html><html><body><input id='searchInput'/><div id='servicesContainer'></div></body></html>", { runScripts: 'dangerously' });
+        window = dom.window;
+        document = window.document;
+
+        const script = document.createElement('script');
+        script.textContent = scriptContent;
+        document.body.appendChild(script);
+    });
+
+    await t.test('should properly escape special HTML characters', () => {
+        assert.strictEqual(window.escapeHtml('<script>alert(1)</script>'), '&lt;script&gt;alert(1)&lt;/script&gt;');
+        assert.strictEqual(window.escapeHtml('"><script>alert(1)</script>'), '&quot;&gt;&lt;script&gt;alert(1)&lt;/script&gt;');
+        assert.strictEqual(window.escapeHtml('Me & You'), 'Me &amp; You');
+        assert.strictEqual(window.escapeHtml("It's fine"), 'It&#39;s fine');
+    });
+
+    await t.test('should handle edge cases', () => {
+        assert.strictEqual(window.escapeHtml(null), '');
+        assert.strictEqual(window.escapeHtml(undefined), '');
+        assert.strictEqual(window.escapeHtml(123), '123');
+        assert.strictEqual(window.escapeHtml(''), '');
+        assert.strictEqual(window.escapeHtml(false), 'false');
+    });
+});

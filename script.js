@@ -391,19 +391,20 @@ function handleSearch(e) {
 
 // Apply filters
 function applyFilters(searchTerm = '') {
-    let filtered = services;
-    
-    // Apply category filter
-    if (currentFilter !== 'all') {
-        filtered = filtered.filter(service => service.category === currentFilter);
+    if (currentFilter === 'all' && !searchTerm) {
+        renderServices(services);
+        return;
     }
     
-    // Apply search filter
-    if (searchTerm) {
-        filtered = filtered.filter(service => {
-            return service.searchableText.includes(searchTerm);
-        });
-    }
+    const filtered = services.filter(service => {
+        if (currentFilter !== 'all' && service.category !== currentFilter) {
+            return false;
+        }
+        if (searchTerm && !service.searchableText.includes(searchTerm)) {
+            return false;
+        }
+        return true;
+    });
     
     renderServices(filtered);
 }
